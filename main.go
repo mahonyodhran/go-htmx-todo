@@ -38,7 +38,9 @@ func main() {
 
 	h1 := func(w http.ResponseWriter, r *http.Request) {
 		tmpl := template.Must(template.ParseFiles("index.html"))
-		tmpl.Execute(w, nil)
+		todos := getAllTodos(db)
+
+		tmpl.Execute(w, todos)
 	}
 	http.HandleFunc("/", h1)
 
