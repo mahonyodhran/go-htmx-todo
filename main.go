@@ -8,6 +8,7 @@ import (
 )
 
 type Todo struct {
+	ID        int
 	Title     string
 	Notes     string
 	CreatedOn time.Time
