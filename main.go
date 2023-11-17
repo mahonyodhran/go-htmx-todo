@@ -42,7 +42,22 @@ func main() {
 
 		tmpl.Execute(w, todos)
 	}
+
+	h2 := func(w http.ResponseWriter, r *http.Request) {
+		title := r.PostFormValue("title")
+		note := r.PostFormValue("note")
+		todo := Todo{title, note, false}
+
+		insertTodo(db, todo)
+
+		todos := getAllTodos(db)
+
+		tmpl := template.Must(template.ParseFiles("index.html"))
+		tmpl.Execute(w, todos)
+	}
+
 	http.HandleFunc("/", h1)
+	http.HandleFunc("/add-todo/", h2)
 
 	log.Println("App starting...")
 	log.Fatal(http.ListenAndServe(":8008", nil))
@@ -65,7 +80,8 @@ func createTodoTable(db *sql.DB) {
 	}
 }
 
-func insertTodo(db *sql.DB, todo Todo) int {
+func insertTodo(db *sql.DB, todo Todo) {
+	fmt.Println("INSIDE INSSERTTODO")
 	query := `INSERT INTO todo (title, note)
 			VALUES ($1, $2) RETURNING id`
 
@@ -80,8 +96,6 @@ func insertTodo(db *sql.DB, todo Todo) int {
 	fmt.Printf("ID: %d\n", pk)
 	fmt.Printf("Title: %s\n", todo.Title)
 	fmt.Printf("Title: %s\n", todo.Note)
-
-	return pk
 }
 
 func getTodoById(db *sql.DB, pk int) Todo {
