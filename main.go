@@ -13,6 +13,7 @@ import (
 )
 
 type Todo struct {
+	ID        int
 	Title     string
 	Note      string
 	Completed bool
@@ -33,27 +34,19 @@ func main() {
 	if err = db.Ping(); err != nil {
 		log.Fatal(err)
 	}
-
 	createTodoTable(db)
 
 	h1 := func(w http.ResponseWriter, r *http.Request) {
 		tmpl := template.Must(template.ParseFiles("index.html"))
 		todos := getAllTodos(db)
-
 		tmpl.Execute(w, todos)
 	}
 
 	h2 := func(w http.ResponseWriter, r *http.Request) {
 		title := r.PostFormValue("title")
 		note := r.PostFormValue("note")
-		todo := Todo{title, note, false}
-
-		insertTodo(db, todo)
-
-		todos := getAllTodos(db)
-
-		tmpl := template.Must(template.ParseFiles("index.html"))
-		tmpl.Execute(w, todos)
+		insertTodo(db, Todo{0, title, note, false})
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	}
 
 	http.HandleFunc("/", h1)
@@ -81,7 +74,6 @@ func createTodoTable(db *sql.DB) {
 }
 
 func insertTodo(db *sql.DB, todo Todo) {
-	fmt.Println("INSIDE INSSERTTODO")
 	query := `INSERT INTO todo (title, note)
 			VALUES ($1, $2) RETURNING id`
 
@@ -92,19 +84,19 @@ func insertTodo(db *sql.DB, todo Todo) {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Successfully added Todo")
+	fmt.Println("Success!")
 	fmt.Printf("ID: %d\n", pk)
 	fmt.Printf("Title: %s\n", todo.Title)
-	fmt.Printf("Title: %s\n", todo.Note)
 }
 
 func getTodoById(db *sql.DB, pk int) Todo {
+	var id int
 	var title string
 	var note string
 	var completed bool
 
 	query := `SELECT * FROM todo WHERE id = $1`
-	err := db.QueryRow(query, pk).Scan(&title, &note, &completed)
+	err := db.QueryRow(query, pk).Scan(&id, &title, &note, &completed)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Fatalf("No records found for ID: %d", pk)
@@ -112,28 +104,29 @@ func getTodoById(db *sql.DB, pk int) Todo {
 		log.Fatal(err)
 	}
 
-	return Todo{title, note, completed}
+	return Todo{id, title, note, completed}
 }
 
 func getAllTodos(db *sql.DB) []Todo {
 	data := []Todo{}
-	rows, err := db.Query("SELECT title, note, completed FROM todo")
+	rows, err := db.Query("SELECT id, title, note, completed FROM todo")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	defer rows.Close()
 
+	var id int
 	var title string
 	var note string
 	var completed bool
 
 	for rows.Next() {
-		err := rows.Scan(&title, &note, &completed)
+		err := rows.Scan(&id, &title, &note, &completed)
 		if err != nil {
 			log.Fatal(err)
 		}
-		data = append(data, Todo{title, note, completed})
+		data = append(data, Todo{id, title, note, completed})
 	}
 
 	return data
