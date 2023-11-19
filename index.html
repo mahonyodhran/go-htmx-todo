@@ -17,9 +17,15 @@
             <h1 class="mb-4">Todos</h1>
             <ul class="list-group fs-5 me-5">
                 {{ range . }}
+                {{ if not .Completed }}
                 <li class="list-group-item bg-primary text-white">
-                    {{ .Title }}
+                    <span>{{ .Title }}</span>
+                    <form action="/complete-todo/{{ .ID }}" method="post" style="display:inline;">
+                        <input type="hidden" name="_del">
+                        <button class="btn btn-danger" type="submit">x</button>
+                    </form>                
                 </li>
+                {{ end }}
                 {{ end }}
             </ul>
         </div>
