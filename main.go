@@ -2,11 +2,11 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -49,8 +49,15 @@ func main() {
 		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	}
 
+	h3 := func(w http.ResponseWriter, r *http.Request) {
+		id := getIDbyURL(r.URL.String())
+		completeTodo(db, id)
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
+	}
+
 	http.HandleFunc("/", h1)
 	http.HandleFunc("/add-todo/", h2)
+	http.HandleFunc("/complete-todo/", h3)
 
 	log.Println("App starting...")
 	log.Fatal(http.ListenAndServe(":8008", nil))
@@ -83,10 +90,7 @@ func insertTodo(db *sql.DB, todo Todo) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println("Success!")
-	fmt.Printf("ID: %d\n", pk)
-	fmt.Printf("Title: %s\n", todo.Title)
+	log.Printf("Created: %d - Title: %s", pk, todo.Title)
 }
 
 func getTodoById(db *sql.DB, pk int) Todo {
@@ -130,4 +134,19 @@ func getAllTodos(db *sql.DB) []Todo {
 	}
 
 	return data
+}
+
+func completeTodo(db *sql.DB, id string) error {
+	query := "UPDATE todo SET completed = 't' , updated = CURRENT_TIMESTAMP WHERE id = $1"
+	_, err := db.Exec(query, id)
+	log.Printf("Completed: %s", id)
+	return err
+}
+
+func getIDbyURL(url string) string {
+	urlStr := strings.TrimSuffix(url, "/")
+	parts := strings.Split(urlStr, "/")
+	pk := parts[len(parts)-1]
+
+	return pk
 }
