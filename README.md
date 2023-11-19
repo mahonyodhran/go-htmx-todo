@@ -17,3 +17,17 @@ In this project, I am developing a Todo application that leverages the power of 
 ### Docker
 
 [Docker](https://www.docker.com/) is an open platform for developing, shipping, and running applications. Docker enables you to separate your applications from your infrastructure so you can deliver software quickly
+
+## Usage
+
+```console
+$ git clone https://github.com/mahonyodhran/go-htmx-todo.git
+```
+
+I have a .env file locally which contains DB_CONN, so create this first.
+
+```console
+$ cd go-htmx-todo
+$ touch .env
+```
+Add DB_CONN="< your connection string >"
