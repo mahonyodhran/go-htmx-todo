@@ -12,37 +12,50 @@
 </head>
 
 <body class="container">
-    <div class="row mt-4 g-4">
-        <div class="col-8">
-            <h1 class="mb-4">Todos</h1>
-            <ul class="list-group fs-5 me-5">
-                {{ range . }}
-                {{ if not .Completed }}
-                <li class="list-group-item bg-primary text-white">
-                    <span>{{ .Title }}</span>
-                    <form action="/complete-todo/{{ .ID }}" method="post" style="display:inline;">
-                        <input type="hidden" name="_del">
-                        <button class="btn btn-danger" type="submit">x</button>
-                    </form>                
-                </li>
-                {{ end }}
-                {{ end }}
-            </ul>
+    <section class="vh-100" style="background-color: #e2d5de;">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col col-xl-10">
+                    <div class="card" style="border-radius: 15px;">
+                        <div class="card-body p-5">
+                            <form class="d-flex justify-content-center align-items-center mb-4" action="/add-todo/"
+                                method="post">
+                                <div class="form-outline flex-fill">
+                                    <input type="text" id="title" name="title" class="form-control form-control-lg"
+                                        placeholder="What do you need to do today..." required />
+                                    <label class="form-label" for="title"></label>
+                                </div>
+                            </form>
+                            <ul class="list-group mb-0">
+                                {{ range . }}
+                                {{ if not .Completed }}
+                                <li
+                                    class="list-group-item d-flex justify-content-between align-items-center border-start-0 border-top-0 border-end-0 border-bottom rounded-0 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <form action="/complete-todo/{{ .ID }}" method="post" style="display:inline;">
+                                            <input type="hidden" name="_del">
+                                            <button class="btn btn-danger" type="submit">x</button>
+                                        </form>
+
+                                        <span class="ps-2">{{ .Title }}</span>
+                                    </div>
+                                    <a href="#!" data-mdb-toggle="tooltip" title="Remove item">
+                                        <i class="fas fa-times text-primary"></i>
+                                    </a>
+                                </li>
+                                <a href="#!" data-mdb-toggle="tooltip" title="Remove item">
+                                    <i class="fas fa-times text-primary"></i>
+                                </a>
+                                </li>
+                                {{ end }}
+                                {{ end }}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="row mt-4">
-        <form action="/add-todo/" method="post" class="col-8">
-            <div class="mb-3">
-                <label for="title" class="form-label">Title:</label>
-                <input type="text" id="title" name="title" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="note" class="form-label">Note:</label>
-                <input type="text" id="note" name="note" class="form-control">
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
+    </section>
 </body>
 
 </html>
